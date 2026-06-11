@@ -1,0 +1,32 @@
+name: Daily Sentiment Update
+
+on:
+  workflow_dispatch:         # 수동 실행 가능 (자동 실행 중단 중)
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Crawl DC gallery
+        run: python scripts/dc_crawler.py
+
+      - name: Build HTML
+        run: python scripts/build_sentiment.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sentiment/
+          git diff --cached --quiet || git commit -m "chore: update sentiment $(date +%Y-%m-%d)"
+          git push
