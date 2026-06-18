@@ -299,32 +299,27 @@ def render_calendar(weeks):
 SOURCE_NOTE = ('데이터 출처: 한국거래소(KRX) 및 증권 포털 등에서 공개되는 시장 데이터를 '
                '장 마감 기준으로 자동 집계했습니다.')
 
-DISCLAIMER_BOX = """<div class="disclaimer">
+def disclaimer_box(base):
+    return f"""<div class="disclaimer">
 <strong>면책조항</strong><br>
 본 페이지는 한국거래소·증권 포털 등에서 공개된 시장 데이터(거래대금·등락률·섹터 등)를 자동으로 정리한 정보 제공 자료입니다.
 특정 종목의 매수·매도를 권유하거나 수익을 보장하지 않으며, 투자 판단과 그 결과에 대한 책임은 전적으로 투자자 본인에게 있습니다.
-데이터는 수집 시점 기준이며 정확성·완전성을 보증하지 않습니다. 자세한 내용은 <a href="../disclaimer.html">면책조항</a> 페이지를 참고하세요.
+데이터는 수집 시점 기준이며 정확성·완전성을 보증하지 않습니다. 자세한 내용은 <a href="{base}disclaimer.html">면책조항</a> 페이지를 참고하세요.
 </div>"""
 
 
-def build_report_page(d):
-    date = d["date"]
-    body = f"""<div class="card">
-  <span class="pill">일일 시장 리포트</span>
-  <h1>{date} 한국 증시 데이터 요약</h1>
-  <p class="lead">장 마감 기준 KOSPI·KOSDAQ 시장 상황과 거래대금·상승률 상위, 주도 섹터를 한눈에 정리했습니다.</p>
-  <div class="metrics">
+def metrics_block(d):
+    return f"""<div class="metrics">
     <div class="metric"><div class="k">코스피</div><div class="v">{d['kospi'].replace('코스피','').strip() or '-'}</div></div>
     <div class="metric"><div class="k">코스닥</div><div class="v">{d['kosdaq'].replace('코스닥','').strip() or '-'}</div></div>
     <div class="metric"><div class="k">시장 상태</div><div class="v" style="font-size:.95rem">{d['regime'] or '-'}</div></div>
     <div class="metric"><div class="k">상한가</div><div class="v">{d['halt_count'] or '-'}</div></div>
-  </div>
-  <div class="edu">📌 <strong>장세 유형</strong> {d['market_type'] or '정보 없음'}<br>
-  자금이 일부 섹터에 몰리는지, 시장 전반이 강한지를 나타냅니다. 용어가 생소하면 <a href="../glossary.html">용어사전</a>을 참고하세요.</div>
-  <p class="small muted" style="margin-top:10px">{SOURCE_NOTE}</p>
-</div>
+  </div>"""
 
-<div class="card">
+
+def market_sections(d, base):
+    """주도섹터·거래대금·상승률·상한가·교집합·4주달력 카드 (홈/리포트 공용)"""
+    return f"""<div class="card">
   <h2>주도 섹터</h2>
   <p class="small muted">당일 자금과 상승이 집중된 테마·업종과 대표 종목입니다.</p>
   {render_sectors(d['sectors'])}
@@ -358,28 +353,57 @@ def build_report_page(d):
   <h2>최근 4주간 주도 섹터</h2>
   <p class="small muted">거래일별로 자금과 상승이 집중됐던 상위 섹터입니다. 시장의 관심이 어떻게 옮겨갔는지 흐름을 볼 수 있습니다.</p>
   {render_calendar(d.get('calendar', []))}
-  {DISCLAIMER_BOX}
+  {disclaimer_box(base)}
 </div>"""
+
+
+def build_report_page(d):
+    date = d["date"]
+    body = f"""<div class="card">
+  <span class="pill">일일 시장 리포트</span>
+  <h1>{date} 한국 증시 데이터 요약</h1>
+  <p class="lead">장 마감 기준 KOSPI·KOSDAQ 시장 상황과 거래대금·상승률 상위, 주도 섹터를 한눈에 정리했습니다.</p>
+  {metrics_block(d)}
+  <div class="edu">📌 <strong>장세 유형</strong> {d['market_type'] or '정보 없음'}<br>
+  자금이 일부 섹터에 몰리는지, 시장 전반이 강한지를 나타냅니다. 용어가 생소하면 <a href="../glossary.html">용어사전</a>을 참고하세요.</div>
+  <p class="small muted" style="margin-top:10px">{SOURCE_NOTE}</p>
+</div>
+
+{market_sections(d, "../")}"""
     title = f"{date} 한국 증시 데이터 요약 | 한국주식 데이터 리포트"
     desc = f"{date} KOSPI·KOSDAQ 거래대금·상승률 상위, 주도 섹터, 상한가 종목 정리"
     return page(title, desc, f"reports/{date}.html", body, base="../")
 
 
+ADL_SECTION = """<div class="card">
+  <h2>시장 상태와 ADL이란?</h2>
+  <p>리포트 상단의 <strong>시장 상태</strong> 칸에는 '강세 / 약세'와 함께 <strong>ADL</strong>이라는 수치가 표시됩니다.
+  이 값은 그날 시장이 <em>얼마나 넓게</em> 오르고 내렸는지를 보여주는 지표입니다.</p>
+
+  <h3>ADL (등락주선, Advance-Decline Line)</h3>
+  <p>ADL은 <strong>오른 종목 수와 내린 종목 수의 관계</strong>를 나타냅니다. 본 사이트에서는 전체 종목 중
+  상승한 종목의 비율(%)을 함께 표기합니다. 예를 들어 <strong>ADL 27.8%</strong>라면, 그날 거래된 종목 중
+  약 27.8%만 올랐고 나머지 약 72%는 내렸거나 보합이었다는 뜻입니다.</p>
+
+  <h3>왜 중요한가</h3>
+  <ul>
+    <li><strong>지수만으로는 알 수 없는 시장의 체감을 보여줍니다.</strong> 코스피가 올라도 ADL이 낮으면,
+    소수의 대형주만 끌어올린 '겉으로만 강한 장'일 수 있습니다.</li>
+    <li><strong>50%가 기준선입니다.</strong> 50%를 크게 웃돌면 시장 전반이 강세, 크게 밑돌면 약세로 봅니다.</li>
+    <li><strong>지수와 ADL의 방향이 엇갈릴 때</strong> 시장의 힘이 약해지고 있다는 신호로 해석되기도 합니다.</li>
+  </ul>
+
+  <h3>'자금집중형'이란</h3>
+  <p>ADL이 낮은데도 지수나 특정 종목이 강하게 오르는 날은, 돈이 시장 전체가 아니라 일부 섹터·종목에만
+  몰린 경우입니다. 이런 장세를 본 사이트에서는 <strong>자금집중형</strong>으로 표시합니다.
+  이때는 주도 섹터의 영향력이 특히 큽니다.</p>
+  <p class="small muted">ADL은 시장 상황을 이해하기 위한 참고 지표이며, 그 자체로 매매 신호가 아닙니다.</p>
+</div>"""
+
+
 def build_home(all_data):
     latest = all_data[0] if all_data else None
-    latest_block = ""
-    if latest:
-        latest_block = f"""<div class="card">
-  <h2>최신 리포트</h2>
-  <p><a href="reports/{latest['date']}.html"><strong>{latest['date']} 한국 증시 데이터 요약 →</strong></a></p>
-  <div class="metrics">
-    <div class="metric"><div class="k">코스피</div><div class="v">{latest['kospi'].replace('코스피','').strip() or '-'}</div></div>
-    <div class="metric"><div class="k">코스닥</div><div class="v">{latest['kosdaq'].replace('코스닥','').strip() or '-'}</div></div>
-    <div class="metric"><div class="k">시장 상태</div><div class="v" style="font-size:.95rem">{latest['regime'] or '-'}</div></div>
-    <div class="metric"><div class="k">상한가</div><div class="v">{latest['halt_count'] or '-'}</div></div>
-  </div>
-</div>"""
-    body = f"""<div class="card">
+    intro = f"""<div class="card">
   <h1>한국주식 데이터 리포트</h1>
   <p class="lead">매 거래일 마감 후, 한국 증시의 공개 데이터를 누구나 보기 쉽게 정리합니다.</p>
   <p>이 사이트는 KOSPI·KOSDAQ 시장의 <strong>거래대금 상위 종목, 당일 상승률 상위 종목, 자금이 몰린 주도 섹터, 상한가 종목</strong>을
@@ -387,8 +411,6 @@ def build_home(all_data):
   <p>특정 종목을 추천하거나 매매를 권유하지 않습니다. 오늘 시장에서 <em>무슨 일이 있었는지</em>를
   데이터로 빠르게 파악하도록 돕는 것이 목적입니다.</p>
 </div>
-
-{latest_block}
 
 <div class="card">
   <h2>데이터를 읽는 법</h2>
@@ -401,12 +423,27 @@ def build_home(all_data):
   <p class="small muted">각 용어의 자세한 설명은 <a href="glossary.html">용어사전</a>에서 확인할 수 있습니다.</p>
 </div>
 
-<div class="disclaimer">
-본 사이트의 모든 정보는 투자 참고용이며, 특정 종목의 매매 권유나 수익 보장이 아닙니다.
-투자 판단과 그 결과에 대한 책임은 투자자 본인에게 있습니다. <a href="disclaimer.html">면책조항 전문 보기</a>
-</div>"""
+{ADL_SECTION}"""
+
+    if latest:
+        report = f"""<div class="card">
+  <span class="pill">최신 리포트 · {latest['date']}</span>
+  <h2 style="margin-top:8px">오늘의 한국 증시 데이터 요약</h2>
+  <p class="lead">장 마감 기준 KOSPI·KOSDAQ 시장 상황과 거래대금·상승률 상위, 주도 섹터입니다.
+  지난 리포트는 <a href="reports/index.html">아카이브</a>에서 볼 수 있습니다.</p>
+  {metrics_block(latest)}
+  <div class="edu">📌 <strong>장세 유형</strong> {latest['market_type'] or '정보 없음'}<br>
+  자금이 일부 섹터에 몰리는지, 시장 전반이 강한지를 나타냅니다.</div>
+  <p class="small muted" style="margin-top:10px">{SOURCE_NOTE}</p>
+</div>
+
+{market_sections(latest, "")}"""
+    else:
+        report = """<div class="card"><p class="muted">아직 발행된 리포트가 없습니다.</p></div>"""
+
+    body = intro + "\n\n" + report
     return page("한국 주식시장 일일 데이터 리포트 | KOSPI·KOSDAQ 거래대금·섹터 분석",
-                "매 거래일 자동 정리되는 KOSPI·KOSDAQ 거래대금·상승률·주도 섹터·상한가 데이터 리포트",
+                "매 거래일 자동 정리되는 KOSPI·KOSDAQ 거래대금·상승률·주도 섹터·상한가 데이터와 ADL·장세 해설",
                 "index.html", body, base="")
 
 
