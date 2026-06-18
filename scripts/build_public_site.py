@@ -134,13 +134,15 @@ def parse(html: str, date: str) -> dict:
     if h1span:
         regime = _txt(h1span)
 
-    kospi = kosdaq = ""
+    kospi = kosdaq = basis_time = ""
     for sp in soup.select(".page-header .meta span"):
         t = _txt(sp)
         if t.startswith("코스피"):
             kospi = t
         elif t.startswith("코스닥"):
             kosdaq = t
+        elif t.startswith("기준시각"):
+            basis_time = t.replace("기준시각", "").strip()
 
     market_type = hlimit = ""
     for row in soup.select(".env-row"):
@@ -158,6 +160,7 @@ def parse(html: str, date: str) -> dict:
         "kosdaq": kosdaq,
         "market_type": market_type,
         "halt_count": hlimit,
+        "basis_time": basis_time,
         "sectors": parse_sectors(soup),
         "halt": parse_table(section_after(soup, "상한가")),
         "value": parse_table(section_after(soup, "거래대금 Top20")),
@@ -297,8 +300,10 @@ def render_calendar(weeks):
             f"{head}</tr></thead><tbody>{body}</tbody></table></div>")
 
 
-SOURCE_NOTE = ('데이터 출처: 한국거래소(KRX) 및 증권 포털 등에서 공개되는 시장 데이터를 '
-               '장 마감 기준으로 자동 집계했습니다.')
+def source_note(d):
+    when = f"{d['date']} {d['basis_time']} KST" if d.get("basis_time") else f"{d['date']} 장 마감"
+    return (f"데이터 출처: 한국거래소(KRX) 및 증권 포털 등에서 공개되는 시장 데이터. "
+            f"<strong>{when} 기준</strong>으로 자동 집계했으며, 이후 시장 상황과 다를 수 있습니다.")
 
 def disclaimer_box(base):
     return f"""<div class="disclaimer">
@@ -367,7 +372,7 @@ def build_report_page(d):
   {metrics_block(d)}
   <div class="edu">📌 <strong>장세 유형</strong> {d['market_type'] or '정보 없음'}<br>
   자금이 일부 섹터에 몰리는지, 시장 전반이 강한지를 나타냅니다. 용어가 생소하면 <a href="../glossary.html">용어사전</a>을 참고하세요.</div>
-  <p class="small muted" style="margin-top:10px">{SOURCE_NOTE}</p>
+  <p class="small muted" style="margin-top:10px">{source_note(d)}</p>
 </div>
 
 {market_sections(d, "../")}"""
@@ -411,6 +416,8 @@ def build_home(all_data):
   매일 자동으로 정리해 보여줍니다. 모든 수치는 한국거래소와 증권 포털에서 공개되는 시장 데이터에 기반합니다.</p>
   <p>특정 종목을 추천하거나 매매를 권유하지 않습니다. 오늘 시장에서 <em>무슨 일이 있었는지</em>를
   데이터로 빠르게 파악하도록 돕는 것이 목적입니다.</p>
+  <div class="edu">🕒 <strong>수집 기준 시각</strong> &nbsp;모든 데이터는 매 거래일 <strong>장 마감(오후 3시 30분) 이후</strong>의
+  종가 기준이며, 당일 저녁에 자동으로 수집·갱신됩니다. 표시된 수치는 해당 시점의 값으로, 이후 실제 시장 상황과 다를 수 있습니다.</div>
 </div>
 
 <div class="card">
@@ -435,7 +442,7 @@ def build_home(all_data):
   {metrics_block(latest)}
   <div class="edu">📌 <strong>장세 유형</strong> {latest['market_type'] or '정보 없음'}<br>
   자금이 일부 섹터에 몰리는지, 시장 전반이 강한지를 나타냅니다.</div>
-  <p class="small muted" style="margin-top:10px">{SOURCE_NOTE}</p>
+  <p class="small muted" style="margin-top:10px">{source_note(latest)}</p>
 </div>
 
 {market_sections(latest, "")}"""
@@ -583,6 +590,11 @@ def build_static_pages():
   <h3>수익 보장 없음</h3>
   <p>본 사이트의 정보를 이용한 투자로 발생하는 손익에 대해 사이트 운영자는 어떠한 책임도 지지 않습니다.
   과거의 시장 데이터나 흐름이 미래의 수익을 보장하지 않습니다.</p>
+
+  <h3>데이터 기준 시점</h3>
+  <p>본 사이트의 모든 데이터는 매 거래일 <strong>장 마감(오후 3시 30분) 이후의 종가 기준</strong>으로,
+  당일 저녁에 자동 수집·발행됩니다. 각 리포트에는 데이터의 기준 시각이 함께 표시됩니다.
+  표시된 수치는 해당 시점의 값이며, 장중 실시간 가격이나 이후의 시장 상황과는 다를 수 있습니다.</p>
 
   <h3>데이터 정확성</h3>
   <p>데이터는 수집 시점을 기준으로 자동 정리되며, 수집·가공 과정에서 오류나 지연, 누락이 있을 수 있습니다.
