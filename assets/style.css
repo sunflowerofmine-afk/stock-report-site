@@ -1,0 +1,152 @@
+/* 한국주식 데이터 리포트 — 공유 스타일 */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f6fa;
+  --card: #ffffff;
+  --ink: #1a1a2e;
+  --muted: #6b7280;
+  --line: #e8eaf0;
+  --line2: #f0f1f5;
+  --accent: #2563eb;
+  --accent-soft: #eff4ff;
+  --pos: #d12f3b;
+  --neg: #1d6fd8;
+  --warn: #b45309;
+  --max: 760px;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── 헤더 / 네비 ── */
+.site-header {
+  background: #1a1a2e;
+  color: #fff;
+}
+.site-header .inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 16px 16px 0;
+}
+.site-header .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.site-header .brand a { color: #fff; font-size: 1.15rem; font-weight: 700; }
+.site-header .brand span { color: #aeb4c7; font-size: .8rem; }
+.site-nav {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  margin-top: 12px;
+}
+.site-nav a {
+  color: #cdd2e0; font-size: .85rem; font-weight: 500;
+  padding: 8px 12px; border-radius: 6px 6px 0 0;
+}
+.site-nav a:hover { background: rgba(255,255,255,.08); text-decoration: none; color: #fff; }
+.site-nav a.active { background: var(--bg); color: var(--accent); }
+
+/* ── 본문 ── */
+main { max-width: var(--max); margin: 24px auto; padding: 0 16px; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+h1 { font-size: 1.5rem; line-height: 1.35; margin-bottom: 6px; }
+h2 {
+  font-size: 1.05rem; margin: 4px 0 14px;
+  padding-left: 11px; border-left: 3px solid var(--accent);
+}
+h3 { font-size: .98rem; margin: 18px 0 8px; }
+p { margin-bottom: 12px; }
+.lead { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+ul, ol { margin: 0 0 12px 20px; }
+li { margin-bottom: 6px; }
+.muted { color: var(--muted); }
+.small { font-size: .85rem; }
+
+.pill {
+  display: inline-block; font-size: .8rem; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  background: var(--accent-soft); color: var(--accent);
+}
+
+/* ── 시장 요약 그리드 ── */
+.metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.metric {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px;
+}
+.metric .k { font-size: .78rem; color: var(--muted); margin-bottom: 3px; }
+.metric .v { font-size: 1.15rem; font-weight: 700; }
+.metric .s { font-size: .78rem; color: var(--muted); }
+
+/* ── 테이블 ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+thead th {
+  text-align: left; color: var(--muted); font-weight: 600; font-size: .78rem;
+  padding: 8px 10px; border-bottom: 2px solid var(--line); white-space: nowrap;
+}
+tbody td { padding: 9px 10px; border-bottom: 1px solid var(--line2); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+td.name { font-weight: 600; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pos { color: var(--pos); }
+.neg { color: var(--neg); }
+.sector-tag { color: var(--accent); font-size: .8rem; }
+.code { color: var(--muted); font-size: .8rem; }
+
+/* ── 섹터 카드 ── */
+.sectors { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.sector {
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+}
+.sector .head {
+  background: var(--bg); padding: 10px 14px;
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+}
+.sector .head .nm { font-weight: 700; }
+.sector .head .ch { font-weight: 700; }
+.sector .head .sh { color: var(--muted); font-size: .8rem; margin-left: auto; }
+.sector table { font-size: .85rem; }
+.sector tbody td { padding: 7px 14px; }
+
+/* ── 교육 박스 ── */
+.edu {
+  background: var(--accent-soft); border: 1px solid #dbe6ff; border-radius: 10px;
+  padding: 14px 16px; font-size: .9rem; color: #2b3a55; margin: 14px 0;
+}
+.edu strong { color: var(--accent); }
+
+/* ── 면책 ── */
+.disclaimer {
+  font-size: .82rem; color: var(--muted); line-height: 1.6;
+  background: #fafbfc; border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px 16px; margin-top: 16px;
+}
+
+/* ── 아카이브 목록 ── */
+.archive td { padding: 11px 10px; }
+.archive .dt { color: var(--muted); width: 130px; }
+
+/* ── 푸터 ── */
+footer {
+  max-width: var(--max); margin: 30px auto 0; padding: 22px 16px 36px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: .82rem;
+}
+footer .links { margin-bottom: 10px; display: flex; gap: 14px; flex-wrap: wrap; }
+
+@media (min-width: 560px) {
+  .metrics { grid-template-columns: repeat(4, 1fr); }
+  .sectors { grid-template-columns: repeat(2, 1fr); }
+}
