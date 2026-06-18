@@ -106,6 +106,25 @@ def parse_sectors(soup):
     return out
 
 
+def parse_calendar(soup):
+    cal = soup.find("table", class_="cal-table")
+    if not cal:
+        return []
+    weeks = []
+    for tr in cal.select("tbody tr"):
+        week = []
+        for td in tr.find_all("td"):
+            day = _txt(td.select_one(".cal-day"))
+            sectors = [_txt(s) for s in td.select(".cal-sector")]
+            week.append({
+                "day": day,
+                "sectors": sectors,
+                "today": "cal-today" in (td.get("class") or []),
+            })
+        weeks.append(week)
+    return weeks
+
+
 def parse(html: str, date: str) -> dict:
     soup = BeautifulSoup(html, "html.parser")
 
@@ -144,6 +163,7 @@ def parse(html: str, date: str) -> dict:
         "value": parse_table(section_after(soup, "거래대금 Top20")),
         "rise": parse_table(section_after(soup, "상승률 Top20")),
         "inter": parse_table(section_after(soup, "교집합")),
+        "calendar": parse_calendar(soup),
     }
 
 
@@ -257,6 +277,28 @@ def render_sectors(sectors):
     return f"<div class='sectors'>{cards}</div>"
 
 
+def render_calendar(weeks):
+    if not weeks:
+        return "<p class='muted'>데이터 없음</p>"
+    head = "".join(f"<th>{d}</th>" for d in ("월", "화", "수", "목", "금"))
+    body = ""
+    for week in weeks:
+        cells = ""
+        for c in week:
+            if not c["day"]:
+                cells += "<td class='cal-cell empty'></td>"
+                continue
+            tags = "".join(f"<span class='cal-sector'>{s}</span>" for s in c["sectors"])
+            today = " today" if c["today"] else ""
+            cells += (f"<td class='cal-cell{today}'><div class='cal-day'>{c['day']}</div>{tags}</td>")
+        body += f"<tr>{cells}</tr>"
+    return ("<div class='tbl-wrap'><table class='cal-table'><thead><tr>"
+            f"{head}</tr></thead><tbody>{body}</tbody></table></div>")
+
+
+SOURCE_NOTE = ('데이터 출처: 한국거래소(KRX) 및 증권 포털 등에서 공개되는 시장 데이터를 '
+               '장 마감 기준으로 자동 집계했습니다.')
+
 DISCLAIMER_BOX = """<div class="disclaimer">
 <strong>면책조항</strong><br>
 본 페이지는 한국거래소·증권 포털 등에서 공개된 시장 데이터(거래대금·등락률·섹터 등)를 자동으로 정리한 정보 제공 자료입니다.
@@ -279,6 +321,7 @@ def build_report_page(d):
   </div>
   <div class="edu">📌 <strong>장세 유형</strong> {d['market_type'] or '정보 없음'}<br>
   자금이 일부 섹터에 몰리는지, 시장 전반이 강한지를 나타냅니다. 용어가 생소하면 <a href="../glossary.html">용어사전</a>을 참고하세요.</div>
+  <p class="small muted" style="margin-top:10px">{SOURCE_NOTE}</p>
 </div>
 
 <div class="card">
@@ -309,6 +352,12 @@ def build_report_page(d):
   <h2>상승률·거래대금 동시 상위 (교집합)</h2>
   <p class="small muted">상승률 Top20과 거래대금 Top20에 동시에 든 종목으로, 관심과 수급이 함께 쏠린 종목입니다.</p>
   {render_inter_table(d['inter'])}
+</div>
+
+<div class="card">
+  <h2>최근 4주간 주도 섹터</h2>
+  <p class="small muted">거래일별로 자금과 상승이 집중됐던 상위 섹터입니다. 시장의 관심이 어떻게 옮겨갔는지 흐름을 볼 수 있습니다.</p>
+  {render_calendar(d.get('calendar', []))}
   {DISCLAIMER_BOX}
 </div>"""
     title = f"{date} 한국 증시 데이터 요약 | 한국주식 데이터 리포트"

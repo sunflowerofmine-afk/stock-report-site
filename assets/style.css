@@ -128,6 +128,23 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 }
 .edu strong { color: var(--accent); }
 
+/* ── 4주 주도섹터 달력 ── */
+.cal-table { table-layout: fixed; }
+.cal-table th { text-align: center; }
+.cal-cell {
+  vertical-align: top; padding: 6px 5px; border: 1px solid var(--line2);
+  height: 1px;
+}
+.cal-cell.empty { background: var(--bg); }
+.cal-cell.today { background: var(--accent-soft); }
+.cal-day { font-weight: 700; font-size: .82rem; margin-bottom: 4px; color: var(--muted); }
+.cal-cell.today .cal-day { color: var(--accent); }
+.cal-sector {
+  display: block; font-size: .68rem; line-height: 1.35; color: var(--ink);
+  background: var(--bg); border-radius: 4px; padding: 2px 4px; margin-bottom: 3px;
+  white-space: normal; word-break: keep-all;
+}
+
 /* ── 면책 ── */
 .disclaimer {
   font-size: .82rem; color: var(--muted); line-height: 1.6;
