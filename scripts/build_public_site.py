@@ -183,6 +183,7 @@ def page(title, desc, path, body, base=""):
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canonical}">
 <link rel="stylesheet" href="{base}assets/style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6804053572487864" crossorigin="anonymous"></script>
 </head>
 <body>
 <header class="site-header"><div class="inner">
