@@ -1,0 +1,5 @@
+# 개인 공부용 — 절대 커밋/배포 금지 (회원전용 카페 수집물·쿠키)
+study/
+.naver_cookies
+*.cookies
+dashboard_sample.html
