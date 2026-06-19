@@ -2,7 +2,7 @@ name: Daily Public Site
 
 on:
   schedule:
-    - cron: "30 9 * * 1-5"   # KST 18:30 평일 (장 마감 후 대시보드 발행 이후)
+    - cron: "23 9 * * 1-5"   # KST 18:23 평일 (장 마감·대시보드 발행 이후, 혼잡 슬롯 회피)
   workflow_dispatch:
 
 permissions:
