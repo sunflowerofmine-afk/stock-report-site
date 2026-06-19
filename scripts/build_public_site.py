@@ -314,13 +314,36 @@ def disclaimer_box(base):
 </div>"""
 
 
+ADL_INFO_HTML = """<a href="#" class="adl-close" aria-hidden="true"></a>
+  <h3 style="margin-top:0">시장 상태와 ADL이란?</h3>
+  <p>리포트 상단의 <strong>시장 상태</strong> 칸에는 '강세 / 약세'와 함께 <strong>ADL</strong>이라는 수치가 표시됩니다.
+  이 값은 그날 시장이 <em>얼마나 넓게</em> 오르고 내렸는지를 보여주는 지표입니다.</p>
+  <h4>ADL (등락주선, Advance-Decline Line)</h4>
+  <p>ADL은 <strong>오른 종목 수와 내린 종목 수의 관계</strong>를 나타냅니다. 본 사이트에서는 전체 종목 중
+  상승한 종목의 비율(%)을 함께 표기합니다. 예를 들어 <strong>ADL 27.8%</strong>라면, 그날 거래된 종목 중
+  약 27.8%만 올랐고 나머지 약 72%는 내렸거나 보합이었다는 뜻입니다.</p>
+  <h4>왜 중요한가</h4>
+  <ul>
+    <li><strong>지수만으로는 알 수 없는 시장의 체감을 보여줍니다.</strong> 코스피가 올라도 ADL이 낮으면,
+    소수의 대형주만 끌어올린 '겉으로만 강한 장'일 수 있습니다.</li>
+    <li><strong>50%가 기준선입니다.</strong> 50%를 크게 웃돌면 시장 전반이 강세, 크게 밑돌면 약세로 봅니다.</li>
+    <li><strong>지수와 ADL의 방향이 엇갈릴 때</strong> 시장의 힘이 약해지고 있다는 신호로 해석되기도 합니다.</li>
+  </ul>
+  <h4>'자금집중형'이란</h4>
+  <p>ADL이 낮은데도 지수나 특정 종목이 강하게 오르는 날은, 돈이 시장 전체가 아니라 일부 섹터·종목에만
+  몰린 경우입니다. 이런 장세를 본 사이트에서는 <strong>자금집중형</strong>으로 표시합니다.
+  이때는 주도 섹터의 영향력이 특히 큽니다.</p>
+  <p class="small muted">ADL은 시장 상황을 이해하기 위한 참고 지표이며, 그 자체로 매매 신호가 아닙니다.</p>"""
+
+
 def metrics_block(d):
     return f"""<div class="metrics">
     <div class="metric"><div class="k">코스피</div><div class="v">{d['kospi'].replace('코스피','').strip() or '-'}</div></div>
     <div class="metric"><div class="k">코스닥</div><div class="v">{d['kosdaq'].replace('코스닥','').strip() or '-'}</div></div>
-    <div class="metric"><div class="k">시장 상태</div><div class="v" style="font-size:.95rem">{d['regime'] or '-'}</div></div>
+    <div class="metric"><div class="k">시장 상태</div><div class="v" style="font-size:.95rem">{d['regime'] or '-'} <a class="adl-link" href="#adl-info">(ADL이란?)</a></div></div>
     <div class="metric"><div class="k">상한가</div><div class="v">{d['halt_count'] or '-'}</div></div>
-  </div>"""
+  </div>
+  <div id="adl-info" class="adl-info">{ADL_INFO_HTML}</div>"""
 
 
 def market_sections(d, base):
@@ -381,31 +404,6 @@ def build_report_page(d):
     return page(title, desc, f"reports/{date}.html", body, base="../")
 
 
-ADL_SECTION = """<div class="card">
-  <h2>시장 상태와 ADL이란?</h2>
-  <p>리포트 상단의 <strong>시장 상태</strong> 칸에는 '강세 / 약세'와 함께 <strong>ADL</strong>이라는 수치가 표시됩니다.
-  이 값은 그날 시장이 <em>얼마나 넓게</em> 오르고 내렸는지를 보여주는 지표입니다.</p>
-
-  <h3>ADL (등락주선, Advance-Decline Line)</h3>
-  <p>ADL은 <strong>오른 종목 수와 내린 종목 수의 관계</strong>를 나타냅니다. 본 사이트에서는 전체 종목 중
-  상승한 종목의 비율(%)을 함께 표기합니다. 예를 들어 <strong>ADL 27.8%</strong>라면, 그날 거래된 종목 중
-  약 27.8%만 올랐고 나머지 약 72%는 내렸거나 보합이었다는 뜻입니다.</p>
-
-  <h3>왜 중요한가</h3>
-  <ul>
-    <li><strong>지수만으로는 알 수 없는 시장의 체감을 보여줍니다.</strong> 코스피가 올라도 ADL이 낮으면,
-    소수의 대형주만 끌어올린 '겉으로만 강한 장'일 수 있습니다.</li>
-    <li><strong>50%가 기준선입니다.</strong> 50%를 크게 웃돌면 시장 전반이 강세, 크게 밑돌면 약세로 봅니다.</li>
-    <li><strong>지수와 ADL의 방향이 엇갈릴 때</strong> 시장의 힘이 약해지고 있다는 신호로 해석되기도 합니다.</li>
-  </ul>
-
-  <h3>'자금집중형'이란</h3>
-  <p>ADL이 낮은데도 지수나 특정 종목이 강하게 오르는 날은, 돈이 시장 전체가 아니라 일부 섹터·종목에만
-  몰린 경우입니다. 이런 장세를 본 사이트에서는 <strong>자금집중형</strong>으로 표시합니다.
-  이때는 주도 섹터의 영향력이 특히 큽니다.</p>
-  <p class="small muted">ADL은 시장 상황을 이해하기 위한 참고 지표이며, 그 자체로 매매 신호가 아닙니다.</p>
-</div>"""
-
 
 def build_home(all_data):
     latest = all_data[0] if all_data else None
@@ -429,9 +427,7 @@ def build_home(all_data):
     <li><strong>교집합</strong> — 상승률과 거래대금이 함께 상위인 종목.</li>
   </ul>
   <p class="small muted">각 용어의 자세한 설명은 <a href="glossary.html">용어사전</a>에서 확인할 수 있습니다.</p>
-</div>
-
-{ADL_SECTION}"""
+</div>"""
 
     if latest:
         report = f"""<div class="card">

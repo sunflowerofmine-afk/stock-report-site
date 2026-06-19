@@ -128,6 +128,22 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 }
 .edu strong { color: var(--accent); }
 
+/* ── ADL 토글 (시장 상태 칸 클릭 설명) ── */
+.adl-link { font-size: .72rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+.adl-link:hover { text-decoration: underline; }
+.adl-info { display: none; }
+.adl-info:target {
+  display: block; margin-top: 14px; padding: 16px 18px 14px;
+  background: var(--accent-soft); border: 1px solid #dbe6ff; border-radius: 10px;
+  position: relative; color: #2b3a55;
+}
+.adl-info h3 { margin: 0 40px 8px 0; font-size: 1rem; }
+.adl-info h4 { font-size: .92rem; margin: 14px 0 6px; }
+.adl-info p { margin-bottom: 10px; }
+.adl-info ul { margin: 0 0 10px 18px; }
+.adl-close { position: absolute; top: 12px; right: 14px; font-size: .8rem; color: var(--muted); }
+.adl-close::before { content: "✕ 닫기"; }
+
 /* ── 4주 주도섹터 달력 ── */
 .cal-table { table-layout: fixed; }
 .cal-table th { text-align: center; }
